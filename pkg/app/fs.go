@@ -20,9 +20,9 @@ func newFileSystem(username string, createdTime time.Time) *FileSystem {
 }
 
 type FileSystem struct {
-	Id       string
-	Username string
-	Root     Folder
+	Id       string `gorm:"column:id;type:char(26);not null;primaryKey"`
+	Username string `gorm:"column:username;type:varchar(64);not null"`
+	Root     Folder `gorm:"-"`
 }
 
 func newRootFolder(params CreateFolderParams) Folder {

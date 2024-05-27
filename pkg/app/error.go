@@ -10,10 +10,14 @@ var (
 	ErrNotExists     = errors.New("doesn't exist.")
 	ErrInvalidParams = errors.New("contain invalid chars.")
 
+	ErrUserExists    = fmt.Errorf("%w", ErrExists)
+	ErrUserNotExists = fmt.Errorf("%w", ErrNotExists)
+
 	ErrFolderExists    = fmt.Errorf("%w", ErrExists)
-	ErrFileExists      = fmt.Errorf("%w", ErrExists)
 	ErrFolderNotExists = fmt.Errorf("%w", ErrNotExists)
-	ErrFileNotExists   = fmt.Errorf("%w", ErrNotExists)
 	ErrListFolderEmpty = errors.New("doesn't have any folders.")
-	ErrListFileEmpty   = errors.New("The folder is empty.")
+
+	ErrFileExists    = fmt.Errorf("%w", ErrExists)
+	ErrFileNotExists = fmt.Errorf("%w", ErrNotExists)
+	ErrListFileEmpty = errors.New("The folder is empty.")
 )

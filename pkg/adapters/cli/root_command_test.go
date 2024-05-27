@@ -1,4 +1,4 @@
-package cli
+package cli_test
 
 import (
 	"testing"
@@ -19,5 +19,5 @@ func TestNewRootCommand(t *testing.T) {
 		},
 	}
 
-	fixture(t, testCommand(), testcase)
+	fixture(t, testcase)
 }

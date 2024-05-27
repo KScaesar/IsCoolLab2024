@@ -1,4 +1,4 @@
-package cli
+package cli_test
 
 import (
 	"testing"
@@ -19,7 +19,7 @@ func Test_createFile(t *testing.T) {
 		},
 	}
 
-	fixture(t, testCommand(), testcase)
+	fixture(t, testcase)
 }
 
 func Test_deleteFile(t *testing.T) {
@@ -37,7 +37,7 @@ func Test_deleteFile(t *testing.T) {
 		},
 	}
 
-	fixture(t, testCommand(), testcase)
+	fixture(t, testcase)
 }
 
 func Test_listFiles(t *testing.T) {
@@ -61,5 +61,5 @@ func Test_listFiles(t *testing.T) {
 		},
 	}
 
-	fixture(t, testCommand(), testcase)
+	fixture(t, testcase)
 }

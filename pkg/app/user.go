@@ -5,13 +5,16 @@ import (
 	"unicode"
 )
 
-func NewUser(username string) (*User, error) {
+func newUser(username string) (*User, error) {
+	err := validateUsername(username)
+	if err != nil {
+		return nil, err
+	}
 	return &User{Username: username}, nil
 }
 
 type User struct {
-	Username     string
-	FilesystemId string
+	Username string `gorm:"column:username;type:varchar(64);not null;primaryKey"`
 }
 
 func validateUsername(username string) error {

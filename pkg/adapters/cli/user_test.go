@@ -1,4 +1,4 @@
-package cli
+package cli_test
 
 import (
 	"testing"
@@ -12,12 +12,18 @@ func Test_registerUser(t *testing.T) {
 		wantResponse string
 	}{
 		{
-			name:         "",
+			name:         "success",
+			request:      `register user2`,
+			hasErr:       false,
+			wantResponse: "Add user2 successfully.\n",
+		},
+		{
+			name:         "The [username] has already existed.",
 			request:      `register user2`,
 			hasErr:       true,
-			wantResponse: "1-[user2]\n",
+			wantResponse: "Error: The user2 has already existed.\n",
 		},
 	}
 
-	fixture(t, testCommand(), testcase)
+	fixture(t, testcase)
 }

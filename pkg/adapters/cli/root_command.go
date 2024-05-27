@@ -5,9 +5,11 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
+
+	"github.com/KScaesar/IsCoolLab2024/pkg/app"
 )
 
-func NewRootCommand() *Command {
+func NewRootCommand(svc *app.Service) *Command {
 	root := &cobra.Command{
 		Use:                "vFS",
 		Short:              "A Simple Virtual File System",
@@ -20,7 +22,7 @@ func NewRootCommand() *Command {
 	})
 
 	// user
-	root.AddCommand(registerUser())
+	root.AddCommand(registerUser(svc.UserService))
 
 	// folder
 	root.AddCommand(createFolder())

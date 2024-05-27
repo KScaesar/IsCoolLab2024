@@ -1,4 +1,4 @@
-package cli
+package cli_test
 
 import (
 	"testing"
@@ -25,7 +25,7 @@ func Test_createFolder(t *testing.T) {
 		},
 	}
 
-	fixture(t, testCommand(), testcase)
+	fixture(t, testcase)
 }
 
 func Test_deleteFolder(t *testing.T) {
@@ -43,7 +43,7 @@ func Test_deleteFolder(t *testing.T) {
 		},
 	}
 
-	fixture(t, testCommand(), testcase)
+	fixture(t, testcase)
 }
 
 func Test_listFolders(t *testing.T) {
@@ -67,7 +67,7 @@ func Test_listFolders(t *testing.T) {
 		},
 	}
 
-	fixture(t, testCommand(), testcase)
+	fixture(t, testcase)
 }
 
 func Test_renameFolder(t *testing.T) {
@@ -85,5 +85,5 @@ func Test_renameFolder(t *testing.T) {
 		},
 	}
 
-	fixture(t, testCommand(), testcase)
+	fixture(t, testcase)
 }

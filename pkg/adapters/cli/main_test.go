@@ -1,4 +1,4 @@
-package cli
+package cli_test
 
 import (
 	"bytes"
@@ -8,12 +8,15 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/KScaesar/IsCoolLab2024/pkg"
+	"github.com/KScaesar/IsCoolLab2024/pkg/adapters"
+	"github.com/KScaesar/IsCoolLab2024/pkg/adapters/database"
+	"github.com/KScaesar/IsCoolLab2024/pkg/inject"
 )
 
 func TestMain(m *testing.M) {
-	setup()
+	// setup()
 	code := m.Run()
-	teardown()
+	// teardown()
 
 	const success = 0
 	if code != success {
@@ -22,24 +25,29 @@ func TestMain(m *testing.M) {
 }
 
 func setup() {
-	sut = NewRootCommand()
+	conf := &database.GormConfing{
+		// Dsn: "vFS.db",
+		Dsn:     ":memory:",
+		Migrate: true,
+	}
+
+	var err error
+	sut, err = inject.NewInfra(conf)
+	if err != nil {
+		panic(err)
+	}
 }
 
 func teardown() {
+	sut.Cleanup()
 	sut = nil
 }
 
 // System Under Test
-var sut *Command
-
-func testCommand() *Command {
-	return sut
-	// return NewRootCommand()
-}
+var sut *adapters.Infra
 
 func fixture(
 	t *testing.T,
-	root *Command,
 	tests []struct {
 		name         string
 		request      string
@@ -48,6 +56,9 @@ func fixture(
 	},
 ) {
 	// t.Parallel()
+	setup()
+	root := inject.NewRootCommand(sut)
+	defer teardown()
 
 	spyStdout := &bytes.Buffer{}
 	spyStderr := &bytes.Buffer{}
