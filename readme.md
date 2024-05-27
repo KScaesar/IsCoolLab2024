@@ -31,8 +31,8 @@ It supports user, folder, and file management function.
 
 ### Prerequisites
 
-- **Go 1.20+** installed.
-- **$GOBIN** (Go binary path) must be in the system's PATH.
+- `Go 1.20+` installed.
+- `$GOBIN` (Go binary path) must be in the system's PATH.
 
 ### Installation
 
@@ -74,7 +74,7 @@ vFS rename-folder [username] [foldername] [new-folder-name]
 - **Response**:
     - Create Folder: `Create [foldername] successfully.`
     - Delete Folder: `Delete [foldername] successfully.`
-    - List Folders: `[foldername] [description] c[reated_at] [username]`
+    - List Folders: `[foldername] [description] [created_at] [username]`
     - Rename Folder: `Rename [foldername] to [new-folder-name] successfully.`
 
 ### File Management
@@ -99,18 +99,18 @@ vFS list-files [username] [foldername] [--sort-name|--sort-created] [asc|desc]
 - **Examples**:
     - Valid: `user_123`, `User-Name`, `username`
     - Invalid: `user name`, `user!name`, `user@name`
-    - `Error: The [username] contains invalid characters or exceeds the length limit.`
+    - `Error: The [username] contains invalid characters.`
 
 
 ### Folder Names
 
 - **Maximum Length**: Up to 256 characters.
-- **Allowed Characters**: Must consist of alphanumeric characters (a-z, A-Z, 0-9), underscores (_), hyphens (-), and spaces.
+- **Allowed Characters**: Must consist of alphanumeric characters (a-z, A-Z, 0-9), underscores (_), hyphens (-), spaces, and forward slashes (/).
 - **Case Insensitivity**: Folder names are case-insensitive and must be unique within the user's scope.
 - **Examples**:
     - Valid: `Folder_123`, `Folder Name`, `folder-name`
     - Invalid: `Folder!Name`, `Folder@Name`
-    - `Error: The [foldername] contains invalid characters or exceeds the length limit.`
+    - `Error: The [foldername] contains invalid characters.`
 
 ### File Names
 
@@ -120,7 +120,7 @@ vFS list-files [username] [foldername] [--sort-name|--sort-created] [asc|desc]
 - **Examples**:
     - Valid: `file_123.txt`, `File Name.txt`, `file-name.txt`
     - Invalid: `file!name.txt`, `file@name.txt`
-    - `Error: The [filename] contains invalid characters or exceeds the length limit.`
+    - `Error: The [filename] contains invalid characters.`
 
 ## Software Architecture
 
