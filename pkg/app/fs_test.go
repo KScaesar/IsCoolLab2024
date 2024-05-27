@@ -14,6 +14,7 @@ func testFileSystem() *FileSystem {
 
 	// folder
 	err := fs.Root.CreateFolder(CreateFolderParams{
+		FsId:        fs.Id,
 		Foldername:  "/home",
 		CreatedTime: createdTime,
 	})
@@ -21,16 +22,19 @@ func testFileSystem() *FileSystem {
 		panic(err)
 	}
 	fs.Root.CreateFolder(CreateFolderParams{
+		FsId:        fs.Id,
 		Foldername:  "/etc",
 		CreatedTime: createdTime.Add(2 * time.Second),
 	})
 	fs.Root.CreateFolder(CreateFolderParams{
+		FsId:        fs.Id,
 		Foldername:  "/tmp",
 		CreatedTime: createdTime.Add(time.Second),
 	})
 
 	// file
 	err = fs.Root.CreateFile(CreateFileParams{
+		FsId:        fs.Id,
 		Foldername:  "/home",
 		Filename:    "dev.conf",
 		CreatedTime: createdTime,
@@ -39,11 +43,13 @@ func testFileSystem() *FileSystem {
 		panic(err)
 	}
 	fs.Root.CreateFile(CreateFileParams{
+		FsId:        fs.Id,
 		Foldername:  "/home",
 		Filename:    "prod.conf",
 		CreatedTime: createdTime.Add(2 * time.Second),
 	})
 	fs.Root.CreateFile(CreateFileParams{
+		FsId:        fs.Id,
 		Foldername:  "/home",
 		Filename:    "qa.conf",
 		CreatedTime: createdTime.Add(time.Second),

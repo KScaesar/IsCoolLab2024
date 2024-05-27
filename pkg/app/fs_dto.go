@@ -9,6 +9,7 @@ import (
 // folder
 
 type CreateFolderParams struct {
+	FsId        string
 	Foldername  string `validate:"required,foldername"`
 	Description string
 	CreatedTime time.Time
@@ -30,6 +31,7 @@ type RenameFolderParams struct {
 // file
 
 type CreateFileParams struct {
+	FsId        string
 	Foldername  string `validate:"required,foldername"`
 	Filename    string `validate:"required,filename"`
 	Description string

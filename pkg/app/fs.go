@@ -12,10 +12,11 @@ import (
 )
 
 func newFileSystem(username string, createdTime time.Time) *FileSystem {
+	fsId := pkg.NewUlid()
 	return &FileSystem{
-		Id:       pkg.NewUlid(),
+		Id:       fsId,
 		Username: username,
-		Root:     newRootFolder(CreateFolderParams{CreatedTime: createdTime}),
+		Root:     newRootFolder(CreateFolderParams{FsId: fsId, CreatedTime: createdTime}),
 	}
 }
 
@@ -27,6 +28,7 @@ type FileSystem struct {
 
 func newRootFolder(params CreateFolderParams) Folder {
 	return Folder{
+		FsId:        params.FsId,
 		CreatedTime: params.CreatedTime,
 	}
 }
@@ -38,6 +40,7 @@ func newFolder(params CreateFolderParams) (*Folder, error) {
 	}
 
 	return &Folder{
+		FsId:        params.FsId,
 		Name:        params.Foldername,
 		Description: params.Description,
 		CreatedTime: params.CreatedTime,
@@ -45,6 +48,7 @@ func newFolder(params CreateFolderParams) (*Folder, error) {
 }
 
 type Folder struct {
+	FsId        string
 	Name        string
 	Description string
 	CreatedTime time.Time
@@ -233,6 +237,7 @@ func newFile(params CreateFileParams) (*File, error) {
 	}
 
 	return &File{
+		FsId:        params.FsId,
 		Name:        params.Filename,
 		Foldername:  params.Foldername,
 		Description: params.Description,
@@ -241,6 +246,7 @@ func newFile(params CreateFileParams) (*File, error) {
 }
 
 type File struct {
+	FsId        string
 	Name        string
 	Foldername  string
 	Description string
