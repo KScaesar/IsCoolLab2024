@@ -12,16 +12,28 @@ func Test_createFolder(t *testing.T) {
 		wantResponse string
 	}{
 		{
-			name:         "",
-			request:      "create-folder user1 folder1",
+			name:         "success",
+			request:      "create-folder user1 folder4",
 			hasErr:       false,
-			wantResponse: "2-[user1 folder1]\n",
+			wantResponse: "Create folder4 successfully.\n",
 		},
 		{
-			name:         "",
-			request:      `create-folder user1 folder2 "this-is-folder 2"`,
+			name:         "with whitespace char",
+			request:      `create-folder user2 folder2 "this-is-folder 2"`,
 			hasErr:       false,
-			wantResponse: "3-[user1 folder2 this-is-folder 2]\n",
+			wantResponse: "Create folder2 successfully.\n",
+		},
+		{
+			name:         "The [foldername] has already existed.",
+			request:      `create-folder user1 folder3`,
+			hasErr:       true,
+			wantResponse: "Error: The folder3 has already existed.\n",
+		},
+		{
+			name:         "The [username] doesn't exist.",
+			request:      `create-folder user4 folder1`,
+			hasErr:       true,
+			wantResponse: "Error: The user4 doesn't exist.\n",
 		},
 	}
 

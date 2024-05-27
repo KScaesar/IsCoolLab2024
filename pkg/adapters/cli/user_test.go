@@ -13,15 +13,15 @@ func Test_registerUser(t *testing.T) {
 	}{
 		{
 			name:         "success",
-			request:      `register user2`,
+			request:      `register user3`,
 			hasErr:       false,
-			wantResponse: "Add user2 successfully.\n",
+			wantResponse: "Add user3 successfully.\n",
 		},
 		{
 			name:         "The [username] has already existed.",
-			request:      `register user2`,
+			request:      `register user1`,
 			hasErr:       true,
-			wantResponse: "Error: The user2 has already existed.\n",
+			wantResponse: "Error: The user1 has already existed.\n",
 		},
 	}
 

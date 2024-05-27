@@ -10,10 +10,11 @@ import (
 type GormConfing struct {
 	Dsn     string
 	Migrate bool
+	Debug   bool
 }
 
 func NewGrom(conf *GormConfing) (*gorm.DB, error) {
-	db, err := pkg.NewSqliteGorm(conf.Dsn)
+	db, err := pkg.NewSqliteGorm(conf.Dsn, conf.Debug)
 	if err != nil {
 		return nil, err
 	}
@@ -25,6 +26,8 @@ func NewGrom(conf *GormConfing) (*gorm.DB, error) {
 	err = db.AutoMigrate(
 		app.User{},
 		app.FileSystem{},
+		app.Folder{},
+		app.File{},
 	)
 	if err != nil {
 		return nil, err

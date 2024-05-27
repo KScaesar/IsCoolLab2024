@@ -25,7 +25,7 @@ func NewRootCommand(svc *app.Service) *Command {
 	root.AddCommand(registerUser(svc.UserService))
 
 	// folder
-	root.AddCommand(createFolder())
+	root.AddCommand(createFolder(svc.FolderService))
 	root.AddCommand(deleteFolder())
 	root.AddCommand(listFolders())
 	root.AddCommand(renameFolder())

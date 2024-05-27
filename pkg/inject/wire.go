@@ -35,6 +35,9 @@ func NewAppService(infra *adapters.Infra) *app.Service {
 
 		app.NewUserUseCase,
 		wire.Bind(new(app.UserService), new(*app.UserUseCase)),
+
+		app.NewFolderUseCase,
+		wire.Bind(new(app.FolderService), new(*app.FolderUseCase)),
 	))
 }
 

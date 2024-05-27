@@ -6,9 +6,10 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/KScaesar/IsCoolLab2024/pkg"
+	"github.com/KScaesar/IsCoolLab2024/pkg/app"
 )
 
-func createFolder() *cobra.Command {
+func createFolder(svc app.FolderService) *cobra.Command {
 	const prompt = "create-folder [username] [foldername] [description]?"
 
 	command := &cobra.Command{
@@ -17,8 +18,25 @@ func createFolder() *cobra.Command {
 	pkg.CliSetUsage(command, "folder", prompt)
 	pkg.CliSetActivePrompt(command, prompt)
 
+	command.Args = cobra.RangeArgs(2, 3)
 	command.Run = func(cmd *cobra.Command, args []string) {
-		fmt.Fprintf(cmd.OutOrStdout(), "%v-%v\n", len(args), args)
+		username := args[0]
+		foldername := args[1]
+		var description string
+		if len(args) >= 3 {
+			description = args[2]
+		}
+		req := app.CreateFolderParams{
+			Foldername:  foldername,
+			Description: description,
+		}
+
+		err := svc.CreateFolder(cmd.Context(), username, req)
+		if err != nil {
+			fmt.Fprintf(cmd.ErrOrStderr(), "%v\n", err)
+			return
+		}
+		fmt.Fprintf(cmd.OutOrStdout(), "Create %v successfully.\n", req.Foldername)
 	}
 	return command
 }

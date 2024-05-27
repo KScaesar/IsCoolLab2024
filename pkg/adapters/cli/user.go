@@ -9,7 +9,7 @@ import (
 	"github.com/KScaesar/IsCoolLab2024/pkg/app"
 )
 
-func registerUser(userSvc app.UserService) *cobra.Command {
+func registerUser(svc app.UserService) *cobra.Command {
 	const prompt = "register [username]"
 
 	command := &cobra.Command{
@@ -21,7 +21,7 @@ func registerUser(userSvc app.UserService) *cobra.Command {
 	command.Args = cobra.ExactArgs(1)
 	command.Run = func(cmd *cobra.Command, args []string) {
 		username := args[0]
-		err := userSvc.Register(cmd.Context(), username)
+		err := svc.Register(cmd.Context(), username)
 		if err != nil {
 			fmt.Fprintf(cmd.ErrOrStderr(), "%v\n", err)
 			return

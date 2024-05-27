@@ -2,6 +2,7 @@ package cli_test
 
 import (
 	"bytes"
+	_ "embed"
 	"os"
 	"testing"
 
@@ -12,6 +13,9 @@ import (
 	"github.com/KScaesar/IsCoolLab2024/pkg/adapters/database"
 	"github.com/KScaesar/IsCoolLab2024/pkg/inject"
 )
+
+//go:embed testdata.sql
+var testdata string
 
 func TestMain(m *testing.M) {
 	// setup()
@@ -29,10 +33,19 @@ func setup() {
 		// Dsn: "vFS.db",
 		Dsn:     ":memory:",
 		Migrate: true,
+		Debug:   true,
 	}
 
 	var err error
 	sut, err = inject.NewInfra(conf)
+	if err != nil {
+		panic(err)
+	}
+
+	if !conf.Migrate {
+		return
+	}
+	err = sut.Database.Exec(testdata).Error
 	if err != nil {
 		panic(err)
 	}

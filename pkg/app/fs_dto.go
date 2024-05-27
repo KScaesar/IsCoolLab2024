@@ -9,10 +9,13 @@ import (
 // folder
 
 type CreateFolderParams struct {
-	FsId        string
 	Foldername  string `validate:"required,foldername"`
 	Description string
-	CreatedTime time.Time
+	createdTime time.Time
+}
+
+func (p *CreateFolderParams) CreatedTime() time.Time {
+	return p.createdTime
 }
 
 type DeleteFolderParams struct {
@@ -31,11 +34,15 @@ type RenameFolderParams struct {
 // file
 
 type CreateFileParams struct {
-	FsId        string
+	folderId    string
 	Foldername  string `validate:"required,foldername"`
 	Filename    string `validate:"required,filename"`
 	Description string
 	CreatedTime time.Time
+}
+
+func (p *CreateFileParams) FolderId() string {
+	return p.folderId
 }
 
 type DeleteFileParams struct {

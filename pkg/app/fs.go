@@ -16,44 +16,54 @@ func newFileSystem(username string, createdTime time.Time) *FileSystem {
 	return &FileSystem{
 		Id:       fsId,
 		Username: username,
-		Root:     newRootFolder(CreateFolderParams{FsId: fsId, CreatedTime: createdTime}),
+		Root:     newRootFolder(fsId, createdTime),
 	}
 }
 
 type FileSystem struct {
 	Id       string `gorm:"column:id;type:char(26);not null;primaryKey"`
-	Username string `gorm:"column:username;type:varchar(64);not null"`
-	Root     Folder `gorm:"-"`
+	Username string `gorm:"column:username;type:varchar(64);not null;uniqueIndex"`
+	Root     Folder `gorm:"foreignKey:fs_id"`
 }
 
-func newRootFolder(params CreateFolderParams) Folder {
+func newRootFolder(fsId string, createdTime time.Time) Folder {
 	return Folder{
-		FsId:        params.FsId,
-		CreatedTime: params.CreatedTime,
+		Id:          pkg.NewUlid(),
+		FsId:        fsId,
+		CreatedTime: createdTime,
 	}
 }
 
-func newFolder(params CreateFolderParams) (*Folder, error) {
+func newFolder(parentId, fsId string, params CreateFolderParams) (*Folder, error) {
 	err := validateFoldername(params.Foldername)
 	if err != nil {
 		return nil, err
 	}
 
 	return &Folder{
-		FsId:        params.FsId,
-		Name:        params.Foldername,
-		Description: params.Description,
-		CreatedTime: params.CreatedTime,
+		Id:             pkg.NewUlid(),
+		ParentFolderId: parentId,
+		FsId:           fsId,
+		Name:           params.Foldername,
+		Description:    params.Description,
+		CreatedTime:    params.CreatedTime(),
+		Files:          nil,
+		Folders:        nil,
 	}, nil
 }
 
 type Folder struct {
-	FsId        string
-	Name        string
-	Description string
-	CreatedTime time.Time
-	Files       []*File
-	Folders     []*Folder
+	Id             string    `gorm:"column:id;type:char(26);not null;primaryKey"`
+	ParentFolderId string    `gorm:"column:parent_id;type:char(26);not null;index"`
+	FsId           string    `gorm:"column:fs_id;type:char(26);not null;index"`
+	Name           string    `gorm:"column:name;type:varchar(256);not null"`
+	Description    string    `gorm:"column:description;type:varchar(1024);not null"`
+	CreatedTime    time.Time `gorm:"column:created_time;not null"`
+	Files          []*File   `gorm:"foreignKey:folder_id"`
+	Folders        []*Folder `gorm:"foreignKey:parent_id"`
+
+	HelpedFolders []*Folder `gorm:"-"`
+	HelpedFiles   []*File   `gorm:"-"`
 }
 
 func (dir *Folder) CreateFolder(params CreateFolderParams) error {
@@ -66,12 +76,13 @@ func (dir *Folder) CreateFolder(params CreateFolderParams) error {
 		return err
 	}
 
-	folder, err := newFolder(params)
+	folder, err := newFolder(dir.Id, dir.FsId, params)
 	if err != nil {
 		return err
 	}
 
 	dir.Folders = append(dir.Folders, folder)
+	dir.HelpedFolders = append(dir.HelpedFolders, folder)
 	return nil
 }
 
@@ -129,6 +140,7 @@ func (dir *Folder) ListFolders(params ListFoldersParams) ([]*Folder, error) {
 
 	return dir.Folders, nil
 }
+
 func (dir *Folder) RenameFolder(params RenameFolderParams) error {
 	err := validateFoldername(params.NewFolderName)
 	if err != nil {
@@ -168,6 +180,7 @@ func (dir *Folder) CreateFile(params CreateFileParams) error {
 		}
 	}
 
+	params.folderId = folder.Id
 	file, err := newFile(params)
 	if err != nil {
 		return err
@@ -237,8 +250,9 @@ func newFile(params CreateFileParams) (*File, error) {
 	}
 
 	return &File{
-		FsId:        params.FsId,
+		Id:          pkg.NewUlid(),
 		Name:        params.Filename,
+		FolderId:    params.folderId,
 		Foldername:  params.Foldername,
 		Description: params.Description,
 		CreatedTime: params.CreatedTime,
@@ -246,11 +260,12 @@ func newFile(params CreateFileParams) (*File, error) {
 }
 
 type File struct {
-	FsId        string
-	Name        string
-	Foldername  string
-	Description string
-	CreatedTime time.Time
+	Id          string    `gorm:"column:id;type:char(26);not null;primaryKey"`
+	Name        string    `gorm:"column:name;type:varchar(256);not null"`
+	FolderId    string    `gorm:"column:folder_id;type:char(26);not null;index"`
+	Foldername  string    `gorm:"column:foldername;type:varchar(256);not null"`
+	Description string    `gorm:"column:description;type:varchar(1024);not null"`
+	CreatedTime time.Time `gorm:"column:created_time;not null"`
 }
 
 // validate
