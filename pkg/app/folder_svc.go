@@ -23,7 +23,7 @@ type FolderUseCase struct {
 }
 
 func (uc *FolderUseCase) CreateFolder(ctx context.Context, username string, params CreateFolderParams) error {
-	fs, err := uc.FsRepo.GetFileSystemByUsername(ctx, username)
+	fs, err := uc.FsRepo.GetFileSystemByUsernameV2(ctx, username)
 	if err != nil {
 		return err
 	}
@@ -42,7 +42,7 @@ func (uc *FolderUseCase) CreateFolder(ctx context.Context, username string, para
 }
 
 func (uc *FolderUseCase) DeleteFolder(ctx context.Context, username string, params DeleteFolderParams) error {
-	fs, err := uc.FsRepo.GetFileSystemByUsername(ctx, username)
+	fs, err := uc.FsRepo.GetFileSystemByUsernameV2(ctx, username)
 	if err != nil {
 		return err
 	}
@@ -61,7 +61,7 @@ func (uc *FolderUseCase) DeleteFolder(ctx context.Context, username string, para
 }
 
 func (uc *FolderUseCase) ListFolders(ctx context.Context, username string, params ListFoldersParams) ([]ViewFolder, error) {
-	fs, err := uc.FsRepo.GetFileSystemByUsername(ctx, username)
+	fs, err := uc.FsRepo.GetFileSystemByUsernameV2(ctx, username)
 	if err != nil {
 		return nil, err
 	}
@@ -80,7 +80,7 @@ func (uc *FolderUseCase) ListFolders(ctx context.Context, username string, param
 }
 
 func (uc *FolderUseCase) RenameFolder(ctx context.Context, username string, params RenameFolderParams) error {
-	fs, err := uc.FsRepo.GetFileSystemByUsername(ctx, username)
+	fs, err := uc.FsRepo.GetFileSystemByUsernameV2(ctx, username)
 	if err != nil {
 		return err
 	}

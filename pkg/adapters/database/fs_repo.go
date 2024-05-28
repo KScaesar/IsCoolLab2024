@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"gorm.io/gorm"
 
@@ -50,8 +51,6 @@ func (repo *FileSystemRepository) GetFileSystemByUsername(ctx context.Context, u
 		return nil, err
 	}
 
-	// 只有單層結構, 有 read 效能問題再使用樹狀結構
-	//
 	// SELECT * FROM `file_systems`
 	// WHERE username = "user1"
 	// LIMIT 1;
@@ -77,6 +76,111 @@ func (repo *FileSystemRepository) GetFileSystemByUsername(ctx context.Context, u
 	// WHERE `files`.`folder_id` = "01HYXCC8AJ35Q5KKVACDEC38G7";
 
 	return &fs, nil
+}
+
+func (repo *FileSystemRepository) GetFileSystemByUsernameV2(ctx context.Context, username string) (*app.FileSystem, error) {
+	type Mapper struct {
+		FsId              string     `gorm:"column:fs_id"`
+		FolderId          string     `gorm:"column:folder_id"`
+		ParentId          string     `gorm:"column:parent_id"`
+		FolderName        string     `gorm:"column:folder_name"`
+		FolderDescription string     `gorm:"column:folder_description"`
+		FolderCreatedTime time.Time  `gorm:"column:folder_created_time"`
+		FileId            *string    `gorm:"column:file_id"`
+		FileName          *string    `gorm:"column:file_name"`
+		FileDescription   *string    `gorm:"column:file_description"`
+		FileCreatedTime   *time.Time `gorm:"column:file_created_time"`
+	}
+	var results []Mapper
+
+	err := repo.db.WithContext(ctx).Raw(`
+SELECT fs.id               AS fs_id,
+       folder.id           AS folder_id,
+       folder.parent_id    AS parent_id,
+       folder.name         AS folder_name,
+       folder.description  AS folder_description,
+       folder.created_time AS folder_created_time,
+       file.id             AS file_id,
+       file.name           AS file_name,
+       file.description    AS file_description,
+       file.created_time   AS file_created_time
+FROM file_systems fs
+      LEFT JOIN
+     folders folder ON folder.fs_id = fs.id
+      LEFT JOIN
+     files file ON file.folder_id = folder.id
+WHERE fs.username = ?
+
+UNION
+
+SELECT fs.id                    AS fs_id,
+       root_folder.id           AS folder_id,
+       root_folder.parent_id    AS parent_id,
+       root_folder.name         AS folder_name,
+       root_folder.description  AS folder_description,
+       root_folder.created_time AS folder_created_time,
+       root_file.id             AS file_id,
+       root_file.name           AS file_name,
+       root_file.description    AS file_description,
+       root_file.created_time   AS file_created_time
+FROM file_systems fs
+      LEFT JOIN
+     folders root_folder ON root_folder.fs_id = fs.id AND root_folder.parent_id = ''
+      LEFT JOIN
+     files root_file ON root_file.folder_id = root_folder.id
+WHERE fs.username = ?;`, username, username).
+		Scan(&results).Error
+	if err != nil {
+		return nil, err
+	}
+
+	folders := make(map[string]*app.Folder, len(results))
+
+	for _, r := range results {
+		folder, ok1 := folders[r.FolderId]
+		if !ok1 {
+			folder = &app.Folder{
+				Id:             r.FolderId,
+				ParentFolderId: r.ParentId,
+				FsId:           r.FsId,
+				Name:           r.FolderName,
+				Description:    r.FolderDescription,
+				CreatedTime:    r.FolderCreatedTime,
+			}
+			folders[r.FolderId] = folder
+		}
+		if r.FileId != nil {
+			folder.Files = append(folder.Files, &app.File{
+				Id:          *r.FileId,
+				Name:        *r.FileName,
+				FolderId:    r.FolderId,
+				Foldername:  r.FolderName,
+				Description: *r.FileDescription,
+				CreatedTime: *r.FileCreatedTime,
+			})
+		}
+	}
+
+	var root *app.Folder
+	for _, folder := range folders {
+		if folder.ParentFolderId == "" {
+			root = folder
+			continue
+		}
+		parentFolder := folders[folder.ParentFolderId]
+		parentFolder.Folders = append(parentFolder.Folders, folder)
+	}
+
+	if root == nil {
+		return nil, fmt.Errorf("Error: The %v %w", username, app.ErrUserNotExists)
+	}
+
+	fs := &app.FileSystem{
+		Id:       root.FsId,
+		Username: username,
+		Root:     *root,
+	}
+	return fs, nil
 }
 
 func (repo *FileSystemRepository) CreateFolder(ctx context.Context, folder *app.Folder) error {

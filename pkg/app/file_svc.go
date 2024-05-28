@@ -21,7 +21,7 @@ type FileUseCase struct {
 }
 
 func (uc *FileUseCase) CreateFile(ctx context.Context, username string, params CreateFileParams) error {
-	fs, err := uc.FsRepo.GetFileSystemByUsername(ctx, username)
+	fs, err := uc.FsRepo.GetFileSystemByUsernameV2(ctx, username)
 	if err != nil {
 		return err
 	}
@@ -40,7 +40,7 @@ func (uc *FileUseCase) CreateFile(ctx context.Context, username string, params C
 }
 
 func (uc *FileUseCase) DeleteFile(ctx context.Context, username string, params DeleteFileParams) error {
-	fs, err := uc.FsRepo.GetFileSystemByUsername(ctx, username)
+	fs, err := uc.FsRepo.GetFileSystemByUsernameV2(ctx, username)
 	if err != nil {
 		return err
 	}
@@ -59,7 +59,7 @@ func (uc *FileUseCase) DeleteFile(ctx context.Context, username string, params D
 }
 
 func (uc *FileUseCase) ListFiles(ctx context.Context, username string, params ListFilesParams) ([]ViewFile, error) {
-	fs, err := uc.FsRepo.GetFileSystemByUsername(ctx, username)
+	fs, err := uc.FsRepo.GetFileSystemByUsernameV2(ctx, username)
 	if err != nil {
 		return nil, err
 	}
