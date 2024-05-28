@@ -89,12 +89,13 @@ func (dir *Folder) CreateFolder(params CreateFolderParams) error {
 func (dir *Folder) DeleteFolder(params DeleteFolderParams) error {
 	targetFolder, err := dir.findFolder(params.Foldername)
 	if err != nil {
-		return fmt.Errorf("Error: The %v %w", params.Foldername, err)
+		return err
 	}
 
 	for i, folder := range dir.Folders {
 		if folder == targetFolder {
 			dir.Folders = append(dir.Folders[:i], dir.Folders[i+1:]...)
+			dir.HelpedFolders = append(dir.HelpedFolders, targetFolder)
 			return nil
 		}
 	}

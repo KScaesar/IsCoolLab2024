@@ -48,10 +48,28 @@ func Test_deleteFolder(t *testing.T) {
 		wantResponse string
 	}{
 		{
-			name:         "",
+			name:         "success",
 			request:      `delete-folder user1 folder1`,
 			hasErr:       false,
-			wantResponse: "2-[user1 folder1]\n",
+			wantResponse: "Delete folder1 successfully.\n",
+		},
+		{
+			name:         "create same foldername after delete",
+			request:      "create-folder user1 folder1",
+			hasErr:       false,
+			wantResponse: "Create folder1 successfully.\n",
+		},
+		{
+			name:         "The [foldername] doesn't exist.",
+			request:      `delete-folder user1 folder4`,
+			hasErr:       true,
+			wantResponse: "Error: The folder4 doesn't exist.\n",
+		},
+		{
+			name:         "The [username] doesn't exist.",
+			request:      `delete-folder user4 folder1`,
+			hasErr:       true,
+			wantResponse: "Error: The user4 doesn't exist.\n",
 		},
 	}
 

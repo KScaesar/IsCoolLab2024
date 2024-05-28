@@ -22,7 +22,8 @@ type UserRepository struct {
 }
 
 func (repo *UserRepository) CreateUser(ctx context.Context, user *app.User) error {
-	err := repo.db.WithContext(ctx).Table(UserTable).Create(user).Error
+	err := repo.db.WithContext(ctx).Table(UserTable).
+		Create(user).Error
 	if err != nil {
 		return err
 	}
@@ -33,8 +34,7 @@ func (repo *UserRepository) QueryUserByName(ctx context.Context, username string
 	var user app.User
 	err := repo.db.WithContext(ctx).Table(UserTable).
 		Where("username = ?", username).
-		First(&user).
-		Error
+		Take(&user).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, app.ErrUserNotExists

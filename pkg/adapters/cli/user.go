@@ -21,6 +21,7 @@ func registerUser(svc app.UserService) *cobra.Command {
 	command.Args = cobra.ExactArgs(1)
 	command.Run = func(cmd *cobra.Command, args []string) {
 		username := args[0]
+
 		err := svc.Register(cmd.Context(), username)
 		if err != nil {
 			fmt.Fprintf(cmd.ErrOrStderr(), "%v\n", err)

@@ -24,7 +24,8 @@ type FileSystemRepository struct {
 }
 
 func (repo *FileSystemRepository) CreateFileSystem(ctx context.Context, fs *app.FileSystem) error {
-	err := repo.db.WithContext(ctx).Table(FileSystemTable).Create(fs).Error
+	err := repo.db.WithContext(ctx).Table(FileSystemTable).
+		Create(fs).Error
 	if err != nil {
 		return err
 	}
@@ -39,8 +40,7 @@ func (repo *FileSystemRepository) GetFileSystemByUsername(ctx context.Context, u
 		Preload("Root.Files").
 		Preload("Root.Folders").
 		Where("username = ?", username).
-		Take(&fs).
-		Error
+		Take(&fs).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, app.ErrUserNotExists
@@ -51,7 +51,22 @@ func (repo *FileSystemRepository) GetFileSystemByUsername(ctx context.Context, u
 }
 
 func (repo *FileSystemRepository) CreateFolder(ctx context.Context, fs *app.FileSystem) error {
-	err := repo.db.WithContext(ctx).Table(FolderTable).Create(fs.Root.HelpedFolders).Error
+	err := repo.db.WithContext(ctx).Table(FolderTable).
+		Create(fs.Root.HelpedFolders).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (repo *FileSystemRepository) DeleteFolder(ctx context.Context, fs *app.FileSystem) error {
+	var ids []string
+	for _, folder := range fs.Root.HelpedFolders {
+		ids = append(ids, folder.Id)
+	}
+
+	err := repo.db.WithContext(ctx).Table(FolderTable).
+		Delete(fs.Root.HelpedFolders, "id in (?)", ids).Error
 	if err != nil {
 		return err
 	}

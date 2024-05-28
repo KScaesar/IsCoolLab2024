@@ -17,6 +17,9 @@ import (
 //go:embed testdata.sql
 var testdata string
 
+// System Under Test
+var sut *adapters.Infra
+
 func TestMain(m *testing.M) {
 	// setup()
 	code := m.Run()
@@ -55,9 +58,6 @@ func teardown() {
 	sut.Cleanup()
 	sut = nil
 }
-
-// System Under Test
-var sut *adapters.Infra
 
 func fixture(
 	t *testing.T,

@@ -41,7 +41,7 @@ func createFolder(svc app.FolderService) *cobra.Command {
 	return command
 }
 
-func deleteFolder() *cobra.Command {
+func deleteFolder(svc app.FolderService) *cobra.Command {
 	const prompt = "delete-folder [username] [foldername]"
 
 	command := &cobra.Command{
@@ -50,8 +50,19 @@ func deleteFolder() *cobra.Command {
 	pkg.CliSetUsage(command, "folder", prompt)
 	pkg.CliSetActivePrompt(command, prompt)
 
+	command.Args = cobra.ExactArgs(2)
 	command.Run = func(cmd *cobra.Command, args []string) {
-		fmt.Fprintf(cmd.OutOrStdout(), "%v-%v\n", len(args), args)
+		username := args[0]
+		req := app.DeleteFolderParams{
+			Foldername: args[1],
+		}
+
+		err := svc.DeleteFolder(cmd.Context(), username, req)
+		if err != nil {
+			fmt.Fprintf(cmd.ErrOrStderr(), "%v\n", err)
+			return
+		}
+		fmt.Fprintf(cmd.OutOrStdout(), "Delete %v successfully.\n", req.Foldername)
 	}
 	return command
 }
