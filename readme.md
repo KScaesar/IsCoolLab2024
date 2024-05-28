@@ -49,7 +49,9 @@ It supports user, folder, and file management function.
 
 3. run the command:
     ```bash
+    vFS -h
     ```
+   ![cli-demo.gif](asset/cli-demo.gif)
 
 ## Usage
 
