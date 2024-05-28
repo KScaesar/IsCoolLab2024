@@ -162,6 +162,9 @@ The main business logic of the application.
 
 ## Unit Testing
 
+- [folder test code](pkg/adapters/cli/folder_test.go)  
+- [file test code](pkg/adapters/cli/file_test.go)  
+
 Run unit tests using:
 ```bash
 go test ./...
