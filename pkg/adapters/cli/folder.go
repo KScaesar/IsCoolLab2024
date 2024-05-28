@@ -130,7 +130,7 @@ func listFolders(svc app.FolderService) *cobra.Command {
 	return command
 }
 
-func renameFolder() *cobra.Command {
+func renameFolder(svc app.FolderService) *cobra.Command {
 	const prompt = "rename-folder [username] [foldername] [new-folder-name]"
 
 	command := &cobra.Command{
@@ -139,8 +139,24 @@ func renameFolder() *cobra.Command {
 	pkg.CliSetUsage(command, "folder", prompt)
 	pkg.CliSetActivePrompt(command, prompt)
 
+	command.Args = cobra.ExactArgs(3)
 	command.Run = func(cmd *cobra.Command, args []string) {
-		fmt.Fprintf(cmd.OutOrStdout(), "%v-%v\n", len(args), args)
+		username := args[0]
+		req := app.RenameFolderParams{
+			OldFolderName: args[1],
+			NewFolderName: args[2],
+		}
+
+		err := svc.RenameFolder(cmd.Context(), username, req)
+		if err != nil {
+			fmt.Fprintf(cmd.ErrOrStderr(), "%v\n", err)
+			return
+		}
+		fmt.Fprintf(cmd.OutOrStdout(),
+			"Rename %v to %v successfully.\n",
+			req.OldFolderName,
+			req.NewFolderName,
+		)
 	}
 	return command
 }

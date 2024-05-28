@@ -13,7 +13,7 @@ func testFileSystem() *FileSystem {
 	fs := newFileSystem("caesar", createdTime)
 
 	// folder
-	err := fs.Root.CreateFolder(CreateFolderParams{
+	_, err := fs.Root.CreateFolder(CreateFolderParams{
 		Foldername:  "/home",
 		CreatedTime: createdTime,
 	})
@@ -94,7 +94,7 @@ func TestFolder_CreateFolder(t *testing.T) {
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			err := fs.Root.CreateFolder(tt.params)
+			_, err := fs.Root.CreateFolder(tt.params)
 			if !errors.Is(err, tt.wantErr) {
 				t.Errorf("CreateFolder() error=%v, want=%v", err, tt.wantErr)
 			}
@@ -141,7 +141,7 @@ func TestFolder_DeleteFolder(t *testing.T) {
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			err := fs.Root.DeleteFolder(tt.params)
+			_, err := fs.Root.DeleteFolder(tt.params)
 			if !errors.Is(err, tt.wantErr) {
 				t.Errorf("DeleteFolder() error=%v, want=%v", err, tt.wantErr)
 			}
@@ -273,12 +273,10 @@ func TestFolder_RenameFolder(t *testing.T) {
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			err := fs.Root.RenameFolder(tt.params)
+			folder, err := fs.Root.RenameFolder(tt.params)
 			if !errors.Is(err, tt.wantErr) {
 				t.Errorf("RenameFolder() error=%v, want=%v", err, tt.wantErr)
 			}
-
-			folder, _ := fs.Root.findFolder(tt.params.NewFolderName)
 			if tt.assert != nil {
 				tt.assert(t, folder)
 			}
@@ -293,7 +291,7 @@ func TestFolder_CreateFile(t *testing.T) {
 		name    string
 		params  CreateFileParams
 		wantErr error
-		assert  func(t *testing.T, folder *Folder)
+		assert  func(t *testing.T, file *File)
 	}{
 		{
 			name: "success",
@@ -302,11 +300,10 @@ func TestFolder_CreateFile(t *testing.T) {
 				Filename:   "nginx.conf",
 			},
 			wantErr: nil,
-			assert: func(t *testing.T, folder *Folder) {
-				n := len(folder.Files)
-				want := 1
-				if n != want {
-					t.Errorf("CreateFile() len=%v, want=%v", n, want)
+			assert: func(t *testing.T, file *File) {
+				want := "nginx.conf"
+				if file.Name != want {
+					t.Errorf("CreateFile() file=%v, want=%v", file.Name, want)
 				}
 			},
 		},
@@ -331,14 +328,12 @@ func TestFolder_CreateFile(t *testing.T) {
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			_, err := fs.Root.CreateFile(tt.params)
+			file, err := fs.Root.CreateFile(tt.params)
 			if !errors.Is(err, tt.wantErr) {
 				t.Errorf("CreateFile() error=%v, want=%v", err, tt.wantErr)
 			}
-
-			folder, _ := fs.Root.findFolder(tt.params.Foldername)
 			if tt.assert != nil {
-				tt.assert(t, folder)
+				tt.assert(t, file)
 			}
 		})
 	}
@@ -351,7 +346,7 @@ func TestFolder_DeleteFile(t *testing.T) {
 		name    string
 		params  DeleteFileParams
 		wantErr error
-		assert  func(t *testing.T, folder *Folder)
+		assert  func(t *testing.T, file *File)
 	}{
 		{
 			name: "success",
@@ -360,11 +355,10 @@ func TestFolder_DeleteFile(t *testing.T) {
 				Filename:   "qa.conf",
 			},
 			wantErr: nil,
-			assert: func(t *testing.T, folder *Folder) {
-				n := len(folder.Files)
-				want := 2
-				if n != want {
-					t.Errorf("DeleteFile() len=%v, want=%v", n, want)
+			assert: func(t *testing.T, file *File) {
+				want := "qa.conf"
+				if file.Name != want {
+					t.Errorf("DeleteFile() file=%v, want=%v", file.Name, want)
 				}
 			},
 		},
@@ -389,14 +383,12 @@ func TestFolder_DeleteFile(t *testing.T) {
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			_, err := fs.Root.DeleteFile(tt.params)
+			file, err := fs.Root.DeleteFile(tt.params)
 			if !errors.Is(err, tt.wantErr) {
 				t.Errorf("DeleteFile() error=%v, want=%v", err, tt.wantErr)
 			}
-
-			folder, _ := fs.Root.findFolder(tt.params.Foldername)
 			if tt.assert != nil {
-				tt.assert(t, folder)
+				tt.assert(t, file)
 			}
 		})
 	}

@@ -26,12 +26,12 @@ func (uc *FileUseCase) CreateFile(ctx context.Context, username string, params C
 		return err
 	}
 
-	folder, err := fs.Root.CreateFile(params)
+	file, err := fs.Root.CreateFile(params)
 	if err != nil {
 		return err
 	}
 
-	err = uc.FsRepo.CreateFile(ctx, folder)
+	err = uc.FsRepo.CreateFile(ctx, file)
 	if err != nil {
 		return err
 	}
@@ -45,12 +45,12 @@ func (uc *FileUseCase) DeleteFile(ctx context.Context, username string, params D
 		return err
 	}
 
-	folder, err := fs.Root.DeleteFile(params)
+	file, err := fs.Root.DeleteFile(params)
 	if err != nil {
 		return err
 	}
 
-	err = uc.FsRepo.DeleteFile(ctx, folder)
+	err = uc.FsRepo.DeleteFile(ctx, file)
 	if err != nil {
 		return err
 	}

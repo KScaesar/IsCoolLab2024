@@ -33,10 +33,10 @@ func TestMain(m *testing.M) {
 
 func setup() {
 	conf := &database.GormConfing{
-		// Dsn: "vFS.db",
+		// Dsn:     "vFS.db",
 		Dsn:     ":memory:",
 		Migrate: true,
-		Debug:   false,
+		// Debug:   true,
 	}
 
 	var err error

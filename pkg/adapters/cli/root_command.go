@@ -17,7 +17,7 @@ func NewRootCommand(svc *app.Service) *Command {
 		SilenceErrors:      true,
 	}
 	root.SetFlagErrorFunc(func(cmd *cobra.Command, err error) error {
-		fmt.Fprintf(cmd.ErrOrStderr(), cmd.UsageString())
+		fmt.Fprintf(cmd.ErrOrStderr(), "%v\n", cmd.UsageString())
 		return nil
 	})
 
@@ -28,7 +28,7 @@ func NewRootCommand(svc *app.Service) *Command {
 	root.AddCommand(createFolder(svc.FolderService))
 	root.AddCommand(deleteFolder(svc.FolderService))
 	root.AddCommand(listFolders(svc.FolderService))
-	root.AddCommand(renameFolder())
+	root.AddCommand(renameFolder(svc.FolderService))
 
 	// file
 	root.AddCommand(createFile(svc.FileService))

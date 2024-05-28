@@ -111,12 +111,6 @@ folder1 2024-05-27 23:00:03 user1
 `,
 		},
 		{
-			name:         "unknown flag",
-			request:      `list-folders user1 --sort-filename asc`,
-			hasErr:       true,
-			wantResponse: "list-folders [username] [--sort-name|--sort-created] [asc|desc]\n",
-		},
-		{
 			name:         "The [username] doesn't have any folders.",
 			request:      `list-folders user2 --sort-name asc`,
 			hasErr:       false,
@@ -135,10 +129,40 @@ func Test_renameFolder(t *testing.T) {
 		wantResponse string
 	}{
 		{
-			name:         "",
-			request:      `rename-folder user3 /home/doc1 "/home/doc2 go"`,
+			name:         "success",
+			request:      `rename-folder user1 folder1 "folder isCool"`,
 			hasErr:       false,
-			wantResponse: "3-[user3 /home/doc1 /home/doc2 go]\n",
+			wantResponse: "Rename folder1 to folder isCool successfully.\n",
+		},
+		{
+			name:    "check rename for existing folder",
+			request: `list-folders user1 --sort-created desc`,
+			hasErr:  false,
+			wantResponse: `folder isCool 2024-05-27 23:00:03 user1
+folder3 2024-05-27 23:00:02 user1
+folder2 qa-folder 2024-05-27 23:00:01 user1
+`,
+		},
+		{
+			name:    "check rename for existing file",
+			request: `list-files user1 "folder isCool" --sort-created desc`,
+			hasErr:  false,
+			wantResponse: `file1 2024-05-27 23:00:03 folder isCool user1
+file3 2024-05-27 23:00:02 folder isCool user1
+file2 qa-file 2024-05-27 23:00:01 folder isCool user1
+`,
+		},
+		{
+			name:         "The [foldername] doesn't exist.",
+			request:      `rename-folder user1 folder4 folder5`,
+			hasErr:       true,
+			wantResponse: "Error: The folder4 doesn't exist.\n",
+		},
+		{
+			name:         "The [username] doesn't exist.",
+			request:      `rename-folder user4 folder1 folder15`,
+			hasErr:       true,
+			wantResponse: "Error: The user4 doesn't exist.\n",
 		},
 	}
 

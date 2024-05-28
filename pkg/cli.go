@@ -1,7 +1,6 @@
 package pkg
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -16,10 +15,10 @@ func CliSetUsage(command *cobra.Command, group, text string) {
 	// https://github.com/spf13/cobra/blob/v1.8.0/command.go#L552-L581
 	// https://github.com/spf13/cobra/blob/v1.8.0/command.go#L433-L441
 
-	usage := fmt.Sprintf("%v\n", text)
+	// usage := fmt.Sprintf("%v\n", text)
 	command.SetHelpCommandGroupID(group)
 	command.UsageString()
-	command.SetUsageTemplate(usage)
+	command.SetUsageTemplate(text)
 	return
 }
 

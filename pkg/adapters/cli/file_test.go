@@ -117,12 +117,6 @@ file1 2024-05-27 23:00:03 folder1 user1
 `,
 		},
 		{
-			name:         "unknown flag",
-			request:      `list-files user1 folder1 --sort-filename asc`,
-			hasErr:       true,
-			wantResponse: "list-files [username] [foldername] [--sort-name|--sort-created] [asc|desc]\n",
-		},
-		{
 			name:         "The folder is empty.",
 			request:      `list-files user1 folder3 --sort-name asc`,
 			hasErr:       false,

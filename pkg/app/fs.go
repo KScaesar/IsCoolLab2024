@@ -61,44 +61,41 @@ type Folder struct {
 	Files          []*File   `gorm:"foreignKey:folder_id"`
 	Folders        []*Folder `gorm:"foreignKey:parent_id"`
 
-	PersistentFolders []*Folder `gorm:"-"`
-	PersistentFiles   []*File   `gorm:"-"`
+	ByUpdate pkg.MapData `gorm:"-"`
 }
 
-func (dir *Folder) CreateFolder(params CreateFolderParams) error {
+func (dir *Folder) CreateFolder(params CreateFolderParams) (*Folder, error) {
 	_, err := dir.findFolder(params.Foldername)
 	if err == nil {
-		return fmt.Errorf("Error: The %v %w", params.Foldername, ErrFolderExists)
+		return nil, fmt.Errorf("Error: The %v %w", params.Foldername, ErrFolderExists)
 	}
 
 	if !errors.Is(err, ErrFolderNotExists) {
-		return err
+		return nil, err
 	}
 
 	folder, err := newFolder(dir.Id, dir.FsId, params)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	dir.Folders = append(dir.Folders, folder)
-	dir.PersistentFolders = append(dir.PersistentFolders, folder)
-	return nil
+	return folder, nil
 }
 
-func (dir *Folder) DeleteFolder(params DeleteFolderParams) error {
+func (dir *Folder) DeleteFolder(params DeleteFolderParams) (*Folder, error) {
 	targetFolder, err := dir.findFolder(params.Foldername)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	for i, folder := range dir.Folders {
 		if folder == targetFolder {
 			dir.Folders = append(dir.Folders[:i], dir.Folders[i+1:]...)
-			dir.PersistentFolders = append(dir.PersistentFolders, targetFolder)
-			return nil
+			return folder, nil
 		}
 	}
-	return nil
+	return nil, nil
 }
 
 func (dir *Folder) findFolder(foldername string) (*Folder, error) {
@@ -141,34 +138,36 @@ func (dir *Folder) ListFolders(params ListFoldersParams) []*Folder {
 	return dir.Folders
 }
 
-func (dir *Folder) RenameFolder(params RenameFolderParams) error {
+func (dir *Folder) RenameFolder(params RenameFolderParams) (*Folder, error) {
 	err := validateFoldername(params.NewFolderName)
 	if err != nil {
-		return fmt.Errorf("Error: The %v %w", params.NewFolderName, err)
+		return nil, fmt.Errorf("Error: The %v %w", params.NewFolderName, err)
 	}
 
 	_, err = dir.findFolder(params.NewFolderName)
 	if err == nil {
-		return fmt.Errorf("Error: The %v %w", params.NewFolderName, ErrFolderExists)
+		return nil, fmt.Errorf("Error: The %v %w", params.NewFolderName, ErrFolderExists)
 	}
 
 	if !errors.Is(err, ErrFolderNotExists) {
-		return err
+		return nil, err
 	}
 
 	folder, err := dir.findFolder(params.OldFolderName)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	folder.Name = params.NewFolderName
+	folder.ByUpdate.MustOk().Set("name", folder.Name)
 	for _, file := range folder.Files {
 		file.Foldername = params.NewFolderName
+		file.ByUpdate.MustOk().Set("foldername", file.Foldername)
 	}
-	return nil
+	return folder, nil
 }
 
-func (dir *Folder) CreateFile(params CreateFileParams) (*Folder, error) {
+func (dir *Folder) CreateFile(params CreateFileParams) (*File, error) {
 	folder, err := dir.findFolder(params.Foldername)
 	if err != nil {
 		return nil, err
@@ -186,11 +185,10 @@ func (dir *Folder) CreateFile(params CreateFileParams) (*Folder, error) {
 	}
 
 	folder.Files = append(folder.Files, file)
-	folder.PersistentFiles = append(folder.PersistentFiles, file)
-	return folder, nil
+	return file, nil
 }
 
-func (dir *Folder) DeleteFile(params DeleteFileParams) (*Folder, error) {
+func (dir *Folder) DeleteFile(params DeleteFileParams) (*File, error) {
 	folder, err := dir.findFolder(params.Foldername)
 	if err != nil {
 		return nil, err
@@ -199,8 +197,7 @@ func (dir *Folder) DeleteFile(params DeleteFileParams) (*Folder, error) {
 	for i, file := range folder.Files {
 		if file.Name == params.Filename {
 			folder.Files = append(folder.Files[:i], folder.Files[i+1:]...)
-			folder.PersistentFiles = append(folder.PersistentFiles, file)
-			return folder, nil
+			return file, nil
 		}
 	}
 
@@ -267,6 +264,8 @@ type File struct {
 	Foldername  string    `gorm:"column:foldername;type:varchar(256);not null"`
 	Description string    `gorm:"column:description;type:varchar(1024);not null"`
 	CreatedTime time.Time `gorm:"column:created_time;not null"`
+
+	ByUpdate pkg.MapData `gorm:"-"`
 }
 
 // validate
