@@ -114,7 +114,7 @@ func listFiles(svc app.FileService) *cobra.Command {
 				fmt.Fprintf(cmd.OutOrStdout(), "%v\n", err)
 				return
 			}
-			fmt.Fprintf(cmd.ErrOrStderr(), "%v", err)
+			fmt.Fprintf(cmd.ErrOrStderr(), "%v\n", err)
 			return
 		}
 
