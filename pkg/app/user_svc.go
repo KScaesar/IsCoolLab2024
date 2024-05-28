@@ -8,7 +8,7 @@ import (
 )
 
 type UserService interface {
-	Register(ctx context.Context, username string) error
+	Register(ctx context.Context, username string, created time.Time) error
 }
 
 type UserRepository interface {
@@ -20,17 +20,15 @@ func NewUserUseCase(userRepo UserRepository, fsRepo FileSystemRepository) *UserU
 	return &UserUseCase{
 		UserRepo: userRepo,
 		FsRepo:   fsRepo,
-		TimeNow:  time.Now,
 	}
 }
 
 type UserUseCase struct {
 	UserRepo UserRepository
 	FsRepo   FileSystemRepository
-	TimeNow  func() time.Time
 }
 
-func (uc *UserUseCase) Register(ctx context.Context, username string) error {
+func (uc *UserUseCase) Register(ctx context.Context, username string, created time.Time) error {
 	user, err := newUser(username)
 	if err != nil {
 		return err
@@ -50,8 +48,7 @@ func (uc *UserUseCase) Register(ctx context.Context, username string) error {
 		return err
 	}
 
-	createdTime := uc.TimeNow()
-	fs := newFileSystem(user.Username, createdTime)
+	fs := newFileSystem(user.Username, created)
 
 	err = uc.FsRepo.CreateFileSystem(ctx, fs)
 	if err != nil {

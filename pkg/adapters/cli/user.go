@@ -2,6 +2,7 @@ package cli
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/spf13/cobra"
 
@@ -22,7 +23,7 @@ func registerUser(svc app.UserService) *cobra.Command {
 	command.Run = func(cmd *cobra.Command, args []string) {
 		username := args[0]
 
-		err := svc.Register(cmd.Context(), username)
+		err := svc.Register(cmd.Context(), username, time.Now())
 		if err != nil {
 			fmt.Fprintf(cmd.ErrOrStderr(), "%v\n", err)
 			return
