@@ -3,7 +3,6 @@ package app
 import (
 	"context"
 	"fmt"
-	"time"
 )
 
 type FolderService interface {
@@ -14,14 +13,12 @@ type FolderService interface {
 
 func NewFolderUseCase(fsRepo FileSystemRepository) *FolderUseCase {
 	return &FolderUseCase{
-		FsRepo:  fsRepo,
-		TimeNow: time.Now,
+		FsRepo: fsRepo,
 	}
 }
 
 type FolderUseCase struct {
-	FsRepo  FileSystemRepository
-	TimeNow func() time.Time
+	FsRepo FileSystemRepository
 }
 
 func (uc *FolderUseCase) CreateFolder(ctx context.Context, username string, params CreateFolderParams) error {
@@ -30,7 +27,6 @@ func (uc *FolderUseCase) CreateFolder(ctx context.Context, username string, para
 		return err
 	}
 
-	params.createdTime = uc.TimeNow()
 	err = fs.Root.CreateFolder(params)
 	if err != nil {
 		return err

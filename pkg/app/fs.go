@@ -47,9 +47,7 @@ func newFolder(parentId, fsId string, params CreateFolderParams) (*Folder, error
 		FsId:           fsId,
 		Name:           params.Foldername,
 		Description:    params.Description,
-		CreatedTime:    params.CreatedTime(),
-		Files:          nil,
-		Folders:        nil,
+		CreatedTime:    params.CreatedTime,
 	}, nil
 }
 
@@ -63,8 +61,8 @@ type Folder struct {
 	Files          []*File   `gorm:"foreignKey:folder_id"`
 	Folders        []*Folder `gorm:"foreignKey:parent_id"`
 
-	HelpedFolders []*Folder `gorm:"-"`
-	HelpedFiles   []*File   `gorm:"-"`
+	PersistentFolders []*Folder `gorm:"-"`
+	PersistentFiles   []*File   `gorm:"-"`
 }
 
 func (dir *Folder) CreateFolder(params CreateFolderParams) error {
@@ -83,7 +81,7 @@ func (dir *Folder) CreateFolder(params CreateFolderParams) error {
 	}
 
 	dir.Folders = append(dir.Folders, folder)
-	dir.HelpedFolders = append(dir.HelpedFolders, folder)
+	dir.PersistentFolders = append(dir.PersistentFolders, folder)
 	return nil
 }
 
@@ -96,7 +94,7 @@ func (dir *Folder) DeleteFolder(params DeleteFolderParams) error {
 	for i, folder := range dir.Folders {
 		if folder == targetFolder {
 			dir.Folders = append(dir.Folders[:i], dir.Folders[i+1:]...)
-			dir.HelpedFolders = append(dir.HelpedFolders, targetFolder)
+			dir.PersistentFolders = append(dir.PersistentFolders, targetFolder)
 			return nil
 		}
 	}
@@ -170,42 +168,43 @@ func (dir *Folder) RenameFolder(params RenameFolderParams) error {
 	return nil
 }
 
-func (dir *Folder) CreateFile(params CreateFileParams) error {
+func (dir *Folder) CreateFile(params CreateFileParams) (*Folder, error) {
 	folder, err := dir.findFolder(params.Foldername)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	for _, file := range folder.Files {
 		if file.Name == params.Filename {
-			return fmt.Errorf("Error: The %v %w", params.Filename, ErrFileExists)
+			return nil, fmt.Errorf("Error: The %v %w", params.Filename, ErrFileExists)
 		}
 	}
 
-	params.folderId = folder.Id
-	file, err := newFile(params)
+	file, err := newFile(folder.Id, params)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	folder.Files = append(folder.Files, file)
-	return nil
+	folder.PersistentFiles = append(folder.PersistentFiles, file)
+	return folder, nil
 }
 
-func (dir *Folder) DeleteFile(params DeleteFileParams) error {
+func (dir *Folder) DeleteFile(params DeleteFileParams) (*Folder, error) {
 	folder, err := dir.findFolder(params.Foldername)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	for i, file := range folder.Files {
 		if file.Name == params.Filename {
 			folder.Files = append(folder.Files[:i], folder.Files[i+1:]...)
-			return nil
+			folder.PersistentFiles = append(folder.PersistentFiles, file)
+			return folder, nil
 		}
 	}
 
-	return fmt.Errorf("Error: The %v %w", params.Filename, ErrFileNotExists)
+	return nil, fmt.Errorf("Error: The %v %w", params.Filename, ErrFileNotExists)
 }
 
 func (dir *Folder) ListFiles(params ListFilesParams) ([]*File, error) {
@@ -245,7 +244,7 @@ func (dir *Folder) ListFiles(params ListFilesParams) ([]*File, error) {
 	return folder.Files, nil
 }
 
-func newFile(params CreateFileParams) (*File, error) {
+func newFile(folderId string, params CreateFileParams) (*File, error) {
 	err := validateFilename(params.Filename)
 	if err != nil {
 		return nil, err
@@ -254,7 +253,7 @@ func newFile(params CreateFileParams) (*File, error) {
 	return &File{
 		Id:          pkg.NewUlid(),
 		Name:        params.Filename,
-		FolderId:    params.folderId,
+		FolderId:    folderId,
 		Foldername:  params.Foldername,
 		Description: params.Description,
 		CreatedTime: params.CreatedTime,

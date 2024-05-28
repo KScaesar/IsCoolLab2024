@@ -15,22 +15,22 @@ func testFileSystem() *FileSystem {
 	// folder
 	err := fs.Root.CreateFolder(CreateFolderParams{
 		Foldername:  "/home",
-		createdTime: createdTime,
+		CreatedTime: createdTime,
 	})
 	if err != nil {
 		panic(err)
 	}
 	fs.Root.CreateFolder(CreateFolderParams{
 		Foldername:  "/etc",
-		createdTime: createdTime.Add(2 * time.Second),
+		CreatedTime: createdTime.Add(2 * time.Second),
 	})
 	fs.Root.CreateFolder(CreateFolderParams{
 		Foldername:  "/tmp",
-		createdTime: createdTime.Add(time.Second),
+		CreatedTime: createdTime.Add(time.Second),
 	})
 
 	// file
-	err = fs.Root.CreateFile(CreateFileParams{
+	_, err = fs.Root.CreateFile(CreateFileParams{
 		Foldername:  "/home",
 		Filename:    "dev.conf",
 		CreatedTime: createdTime,
@@ -331,7 +331,7 @@ func TestFolder_CreateFile(t *testing.T) {
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			err := fs.Root.CreateFile(tt.params)
+			_, err := fs.Root.CreateFile(tt.params)
 			if !errors.Is(err, tt.wantErr) {
 				t.Errorf("CreateFile() error=%v, want=%v", err, tt.wantErr)
 			}
@@ -389,7 +389,7 @@ func TestFolder_DeleteFile(t *testing.T) {
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			err := fs.Root.DeleteFile(tt.params)
+			_, err := fs.Root.DeleteFile(tt.params)
 			if !errors.Is(err, tt.wantErr) {
 				t.Errorf("DeleteFile() error=%v, want=%v", err, tt.wantErr)
 			}

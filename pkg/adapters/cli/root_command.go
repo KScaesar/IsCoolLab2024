@@ -31,9 +31,9 @@ func NewRootCommand(svc *app.Service) *Command {
 	root.AddCommand(renameFolder())
 
 	// file
-	root.AddCommand(createFile())
-	root.AddCommand(deleteFile())
-	root.AddCommand(listFiles())
+	root.AddCommand(createFile(svc.FileService))
+	root.AddCommand(deleteFile(svc.FileService))
+	root.AddCommand(listFiles(svc.FileService))
 
 	return &Command{root}
 }

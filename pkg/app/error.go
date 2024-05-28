@@ -19,5 +19,5 @@ var (
 
 	ErrFileExists    = fmt.Errorf("%w", ErrExists)
 	ErrFileNotExists = fmt.Errorf("%w", ErrNotExists)
-	ErrListFileEmpty = errors.New("The folder is empty.")
+	ErrListFileEmpty = errors.New("Warning: The folder is empty.")
 )

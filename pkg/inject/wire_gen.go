@@ -32,9 +32,11 @@ func NewAppService(infra *adapters.Infra) *app.Service {
 	fileSystemRepository := database.NewFileSystemRepository(db)
 	userUseCase := app.NewUserUseCase(userRepository, fileSystemRepository)
 	folderUseCase := app.NewFolderUseCase(fileSystemRepository)
+	fileUseCase := app.NewFileUseCase(fileSystemRepository)
 	service := &app.Service{
 		UserService:   userUseCase,
 		FolderService: folderUseCase,
+		FileService:   fileUseCase,
 	}
 	return service
 }

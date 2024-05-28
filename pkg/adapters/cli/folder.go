@@ -3,6 +3,7 @@ package cli
 import (
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/spf13/cobra"
 
@@ -30,6 +31,7 @@ func createFolder(svc app.FolderService) *cobra.Command {
 		req := app.CreateFolderParams{
 			Foldername:  foldername,
 			Description: description,
+			CreatedTime: time.Now(),
 		}
 
 		err := svc.CreateFolder(cmd.Context(), username, req)

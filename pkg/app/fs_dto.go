@@ -11,11 +11,7 @@ import (
 type CreateFolderParams struct {
 	Foldername  string `validate:"required,foldername"`
 	Description string
-	createdTime time.Time
-}
-
-func (p *CreateFolderParams) CreatedTime() time.Time {
-	return p.createdTime
+	CreatedTime time.Time
 }
 
 type DeleteFolderParams struct {
@@ -34,15 +30,10 @@ type RenameFolderParams struct {
 // file
 
 type CreateFileParams struct {
-	folderId    string
 	Foldername  string `validate:"required,foldername"`
 	Filename    string `validate:"required,filename"`
 	Description string
 	CreatedTime time.Time
-}
-
-func (p *CreateFileParams) FolderId() string {
-	return p.folderId
 }
 
 type DeleteFileParams struct {
