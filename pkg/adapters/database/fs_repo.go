@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"gorm.io/gorm"
 
@@ -36,14 +37,14 @@ func (repo *FileSystemRepository) GetFileSystemByUsername(ctx context.Context, u
 	// https://gorm.io/zh_CN/docs/preload.html#%E9%A2%84%E5%8A%A0%E8%BD%BD%E5%85%A8%E9%83%A8
 	var fs app.FileSystem
 	err := repo.db.WithContext(ctx).Table(FileSystemTable).
-		Preload("Root", "name = ''").
+		Preload("Root", "parent_id = ''").
 		Preload("Root.Files").
 		Preload("Root.Folders").
 		Where("username = ?", username).
 		Take(&fs).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, app.ErrUserNotExists
+			return nil, fmt.Errorf("Error: The %v %w", username, app.ErrUserNotExists)
 		}
 		return nil, err
 	}

@@ -30,6 +30,7 @@ func newRootFolder(fsId string, createdTime time.Time) Folder {
 	return Folder{
 		Id:          pkg.NewUlid(),
 		FsId:        fsId,
+		Name:        "/",
 		CreatedTime: createdTime,
 	}
 }
@@ -114,7 +115,7 @@ func (dir *Folder) findFolder(foldername string) (*Folder, error) {
 	return nil, fmt.Errorf("Error: The %v %w", foldername, ErrFolderNotExists)
 }
 
-func (dir *Folder) ListFolders(params ListFoldersParams) ([]*Folder, error) {
+func (dir *Folder) ListFolders(params ListFoldersParams) []*Folder {
 	pkg.SortTraversalParams(params.Sort.Value(), func(key string, value pkg.SortKind) {
 		sort.Slice(dir.Folders, func(i, j int) bool {
 			switch key {
@@ -139,7 +140,7 @@ func (dir *Folder) ListFolders(params ListFoldersParams) ([]*Folder, error) {
 		})
 	})
 
-	return dir.Folders, nil
+	return dir.Folders
 }
 
 func (dir *Folder) RenameFolder(params RenameFolderParams) error {

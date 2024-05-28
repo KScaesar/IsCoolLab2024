@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"gorm.io/gorm"
 
@@ -37,7 +38,7 @@ func (repo *UserRepository) QueryUserByName(ctx context.Context, username string
 		Take(&user).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, app.ErrUserNotExists
+			return nil, fmt.Errorf("Error: The %v %w", username, app.ErrUserNotExists)
 		}
 		return nil, err
 	}

@@ -9,6 +9,7 @@ import (
 type FolderService interface {
 	CreateFolder(ctx context.Context, username string, params CreateFolderParams) error
 	DeleteFolder(ctx context.Context, username string, params DeleteFolderParams) error
+	ListFolders(ctx context.Context, username string, params ListFoldersParams) ([]ViewFolder, error)
 }
 
 func NewFolderUseCase(fsRepo FileSystemRepository) *FolderUseCase {
@@ -26,7 +27,7 @@ type FolderUseCase struct {
 func (uc *FolderUseCase) CreateFolder(ctx context.Context, username string, params CreateFolderParams) error {
 	fs, err := uc.FsRepo.GetFileSystemByUsername(ctx, username)
 	if err != nil {
-		return fmt.Errorf("Error: The %v %w", username, err)
+		return err
 	}
 
 	params.createdTime = uc.TimeNow()
@@ -46,7 +47,7 @@ func (uc *FolderUseCase) CreateFolder(ctx context.Context, username string, para
 func (uc *FolderUseCase) DeleteFolder(ctx context.Context, username string, params DeleteFolderParams) error {
 	fs, err := uc.FsRepo.GetFileSystemByUsername(ctx, username)
 	if err != nil {
-		return fmt.Errorf("Error: The %v %w", username, err)
+		return err
 	}
 
 	err = fs.Root.DeleteFolder(params)
@@ -60,4 +61,23 @@ func (uc *FolderUseCase) DeleteFolder(ctx context.Context, username string, para
 	}
 
 	return nil
+}
+
+func (uc *FolderUseCase) ListFolders(ctx context.Context, username string, params ListFoldersParams) ([]ViewFolder, error) {
+	fs, err := uc.FsRepo.GetFileSystemByUsername(ctx, username)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(fs.Root.Folders) == 0 {
+		return nil, fmt.Errorf("Warning: The %v %w", username, ErrListFolderEmpty)
+	}
+
+	folders := fs.Root.ListFolders(params)
+	response := make([]ViewFolder, len(folders))
+	for i, folder := range folders {
+		response[i] = ToViewFolder(folder, username)
+	}
+
+	return response, nil
 }

@@ -84,16 +84,43 @@ func Test_listFolders(t *testing.T) {
 		wantResponse string
 	}{
 		{
-			name:         "",
-			request:      `list-folders user1 --sort-name asc`,
-			hasErr:       false,
-			wantResponse: "1-[user1]-(1)\n",
+			name:    "by default",
+			request: `list-folders user1`,
+			hasErr:  false,
+			wantResponse: `folder1 2024-05-27 23:00:03 user1
+folder2 qa-folder 2024-05-27 23:00:01 user1
+folder3 2024-05-27 23:00:02 user1
+`,
+		},
+		{
+			name:    "by created",
+			request: `list-folders user1 --sort-created desc`,
+			hasErr:  false,
+			wantResponse: `folder1 2024-05-27 23:00:03 user1
+folder3 2024-05-27 23:00:02 user1
+folder2 qa-folder 2024-05-27 23:00:01 user1
+`,
+		},
+		{
+			name:    "by name",
+			request: `list-folders user1 --sort-name desc`,
+			hasErr:  false,
+			wantResponse: `folder3 2024-05-27 23:00:02 user1
+folder2 qa-folder 2024-05-27 23:00:01 user1
+folder1 2024-05-27 23:00:03 user1
+`,
 		},
 		{
 			name:         "unknown flag",
 			request:      `list-folders user1 --sort-filename asc`,
 			hasErr:       true,
 			wantResponse: "list-folders [username] [--sort-name|--sort-created] [asc|desc]\n",
+		},
+		{
+			name:         "The [username] doesn't have any folders.",
+			request:      `list-folders user2 --sort-name asc`,
+			hasErr:       false,
+			wantResponse: "Warning: The user2 doesn't have any folders.\n",
 		},
 	}
 

@@ -36,7 +36,7 @@ func setup() {
 		// Dsn: "vFS.db",
 		Dsn:     ":memory:",
 		Migrate: true,
-		Debug:   true,
+		Debug:   false,
 	}
 
 	var err error
@@ -70,18 +70,19 @@ func fixture(
 ) {
 	// t.Parallel()
 	setup()
-	root := inject.NewRootCommand(sut)
 	defer teardown()
 
 	spyStdout := &bytes.Buffer{}
 	spyStderr := &bytes.Buffer{}
-	root.SetOut(spyStdout)
-	root.SetErr(spyStderr)
 
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
+			root := inject.NewRootCommand(sut)
+			root.SetOut(spyStdout)
+			root.SetErr(spyStderr)
 			root.SetArgs(pkg.CliParse(tt.request))
+
 			root.Execute()
 
 			var actualResponse string

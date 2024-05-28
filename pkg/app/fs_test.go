@@ -211,10 +211,7 @@ func TestFolder_ListFolders(t *testing.T) {
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			folders, err := fs.Root.ListFolders(tt.params)
-			if !errors.Is(err, tt.wantErr) {
-				t.Errorf("ListFolders() error=%v, want=%v", err, tt.wantErr)
-			}
+			folders := fs.Root.ListFolders(tt.params)
 			if tt.assert != nil {
 				tt.assert(t, folders)
 			}

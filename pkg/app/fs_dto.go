@@ -87,8 +87,8 @@ func (p *FileSystemSortParams) Validate() (err error) {
 
 // view model
 
-func ConvertFolderView(folder *Folder, username string) *FolderView {
-	return &FolderView{
+func ToViewFolder(folder *Folder, username string) ViewFolder {
+	return ViewFolder{
 		Fodlername:  folder.Name,
 		Description: folder.Description,
 		CreatedTime: folder.CreatedTime,
@@ -96,15 +96,15 @@ func ConvertFolderView(folder *Folder, username string) *FolderView {
 	}
 }
 
-type FolderView struct {
+type ViewFolder struct {
 	Fodlername  string
 	Description string
 	CreatedTime time.Time
 	Username    string
 }
 
-func ConvertFileView(file *File, username string) *FileView {
-	return &FileView{
+func ToViewFile(file *File, username string) ViewFile {
+	return ViewFile{
 		Filename:    file.Name,
 		Description: file.Description,
 		CreatedTime: file.CreatedTime,
@@ -113,7 +113,7 @@ func ConvertFileView(file *File, username string) *FileView {
 	}
 }
 
-type FileView struct {
+type ViewFile struct {
 	Filename    string
 	Description string
 	CreatedTime time.Time

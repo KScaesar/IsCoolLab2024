@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/spf13/cobra"
@@ -67,7 +68,7 @@ func deleteFolder(svc app.FolderService) *cobra.Command {
 	return command
 }
 
-func listFolders() *cobra.Command {
+func listFolders(svc app.FolderService) *cobra.Command {
 	const prompt = "list-folders [username] [--sort-name|--sort-created] [asc|desc]"
 
 	command := &cobra.Command{
@@ -79,11 +80,50 @@ func listFolders() *cobra.Command {
 	sortByName := command.Flags().String("sort-name", "asc", "sort by folder name [asc|desc]")
 	sortByCreated := command.Flags().String("sort-created", "", "sort by created  [asc|desc]")
 	command.MarkFlagsMutuallyExclusive("sort-name", "sort-created")
-	_ = sortByName
-	_ = sortByCreated
 
+	command.Args = cobra.ExactArgs(1)
 	command.Run = func(cmd *cobra.Command, args []string) {
-		fmt.Fprintf(cmd.OutOrStdout(), "%v-%v-(%v)\n", len(args), args, cmd.Flags().NFlag())
+		username := args[0]
+		req := app.ListFoldersParams{
+			Sort: &app.FileSystemSortParams{
+				ByName:    pkg.SortKind(*sortByName),
+				ByCreated: pkg.SortKind(*sortByCreated),
+			},
+		}
+
+		folders, err := svc.ListFolders(cmd.Context(), username, req)
+		if err != nil {
+			if errors.Is(err, app.ErrListFolderEmpty) {
+				fmt.Fprintf(cmd.OutOrStdout(), "%v\n", err)
+				return
+			}
+			fmt.Fprintf(cmd.ErrOrStderr(), "%v", err)
+			return
+		}
+
+		renderByText := func(folder *app.ViewFolder) {
+			if folder.Description == "" {
+				fmt.Fprintf(cmd.OutOrStdout(),
+					"%v %v %v\n",
+					folder.Fodlername,
+					folder.CreatedTime.Format("2006-01-02 15:04:05"),
+					folder.Username,
+				)
+				return
+			}
+
+			fmt.Fprintf(cmd.OutOrStdout(),
+				"%v %v %v %v\n",
+				folder.Fodlername,
+				folder.Description,
+				folder.CreatedTime.Format("2006-01-02 15:04:05"),
+				folder.Username,
+			)
+		}
+
+		for _, folder := range folders {
+			renderByText(&folder)
+		}
 	}
 	return command
 }
