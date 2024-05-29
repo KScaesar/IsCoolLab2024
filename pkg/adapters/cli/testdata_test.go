@@ -14,22 +14,13 @@ import (
 	"github.com/KScaesar/IsCoolLab2024/pkg/inject"
 )
 
-//go:embed testdata.sql
-var testdata string
+var (
+	//go:embed testdata.sql
+	testdata string
 
-// System Under Test
-var sut *adapters.Infra
-
-func TestMain(m *testing.M) {
-	// setup()
-	code := m.Run()
-	// teardown()
-
-	const success = 0
-	if code != success {
-		os.Exit(code)
-	}
-}
+	// System Under Test
+	sut *adapters.Infra
+)
 
 func setup() {
 	conf := &database.GormConfing{
@@ -97,5 +88,16 @@ func fixture(
 			spyStdout.Reset()
 			spyStderr.Reset()
 		})
+	}
+}
+
+func TestMain(m *testing.M) {
+	// setup()
+	code := m.Run()
+	// teardown()
+
+	const success = 0
+	if code != success {
+		os.Exit(code)
 	}
 }

@@ -54,6 +54,12 @@ func Test_deleteFolder(t *testing.T) {
 			wantResponse: "Delete folder1 successfully.\n",
 		},
 		{
+			name:         "check delete folder has file",
+			request:      `list-files user1 folder1`,
+			hasErr:       true,
+			wantResponse: "Error: The folder1 doesn't exist.\n",
+		},
+		{
 			name:         "create same foldername after delete",
 			request:      "create-folder user1 folder1",
 			hasErr:       false,

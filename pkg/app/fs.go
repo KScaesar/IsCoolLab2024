@@ -179,7 +179,7 @@ func (dir *Folder) CreateFile(params CreateFileParams) (*File, error) {
 		}
 	}
 
-	file, err := newFile(folder.Id, params)
+	file, err := newFile(folder.Id, folder.FsId, params)
 	if err != nil {
 		return nil, err
 	}
@@ -241,7 +241,7 @@ func (dir *Folder) ListFiles(params ListFilesParams) ([]*File, error) {
 	return folder.Files, nil
 }
 
-func newFile(folderId string, params CreateFileParams) (*File, error) {
+func newFile(folderId, fsId string, params CreateFileParams) (*File, error) {
 	err := validateFilename(params.Filename)
 	if err != nil {
 		return nil, err
@@ -249,18 +249,21 @@ func newFile(folderId string, params CreateFileParams) (*File, error) {
 
 	return &File{
 		Id:          pkg.NewUlid(),
-		Name:        params.Filename,
 		FolderId:    folderId,
+		FsId:        fsId,
+		Name:        params.Filename,
 		Foldername:  params.Foldername,
 		Description: params.Description,
 		CreatedTime: params.CreatedTime,
+		ByUpdate:    nil,
 	}, nil
 }
 
 type File struct {
 	Id          string    `gorm:"column:id;type:char(26);not null;primaryKey"`
-	Name        string    `gorm:"column:name;type:varchar(256);not null"`
 	FolderId    string    `gorm:"column:folder_id;type:char(26);not null;index"`
+	FsId        string    `gorm:"column:fs_id;type:char(26);not null;index"`
+	Name        string    `gorm:"column:name;type:varchar(256);not null"`
 	Foldername  string    `gorm:"column:foldername;type:varchar(256);not null"`
 	Description string    `gorm:"column:description;type:varchar(1024);not null"`
 	CreatedTime time.Time `gorm:"column:created_time;not null"`
