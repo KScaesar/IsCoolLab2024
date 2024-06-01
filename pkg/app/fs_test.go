@@ -9,7 +9,7 @@ import (
 )
 
 func testFileSystem() *FileSystem {
-	createdTime := pkg.MockTimeNow("2024-05-26T12:00:00+08:00")()
+	createdTime := pkg.NewMockTimeFunc("2024-05-26T12:00:00+08:00").Now()
 	fs := newFileSystem("caesar", createdTime)
 
 	// folder
